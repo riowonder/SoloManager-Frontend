@@ -22,6 +22,7 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
+      console.log("Base URL : ", import.meta.env.VITE_API_BASE_URL);
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/api/auth/login`,
         {
