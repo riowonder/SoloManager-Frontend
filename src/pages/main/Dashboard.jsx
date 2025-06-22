@@ -11,6 +11,7 @@ import axios from "axios";
 import ShowMemberModal from "../../components/ShowMemberModal";
 import { toast } from "react-hot-toast";
 import SearchMembersModal from '../../components/SearchMembersModal';
+import Spinner, { CardSkeleton, TableSkeleton } from "../../components/Spinner";
 // import ShowAllMembersModal from '../../components/ShowAllMembersModal';
 
 const expiredSubscriptions = [
@@ -49,44 +50,72 @@ export default function Dashboard() {
 
   const [showAllMembersModal, setShowAllMembersModal] = useState(false);
 
+  // Loading states
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isMembersLoading, setIsMembersLoading] = useState(false);
+  const [isExpiredLoading, setIsExpiredLoading] = useState(false);
+  const [isExpiringLoading, setIsExpiringLoading] = useState(false);
+
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
   const getMembers = async () => {
     try {
+      setIsMembersLoading(true);
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/member/get-members`, { withCredentials: true });
       setMembers(response.data.members || []);
       console.log("response.data.members : ", response.data.members);
     } catch (error) {
       setMembers([]);
       toast.error("Error fetching members");
+    } finally {
+      setIsMembersLoading(false);
     }
   };
 
   const getExpiredSubscriptions = async () => {
     try {
+      setIsExpiredLoading(true);
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/member/expired`, { withCredentials: true });
       setExpiredSubscriptions(response.data.expiredSubscriptions || []);
     } catch (error) {
       setExpiredSubscriptions([]);
       toast.error("Error fetching expired subscriptions");
+    } finally {
+      setIsExpiredLoading(false);
     }
   };
 
   const getExpiringSoon = async () => {
     try {
+      setIsExpiringLoading(true);
       const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/member/expiring-soon`, {}, { withCredentials: true });
       console.log("response.data.expiringSoon : ", response.data.expiringSoon);
       setExpiringSoon(response.data.expiringSoon || []);
     } catch (error) {
       setExpiringSoon([]);
       toast.error("Error fetching expiring soon subscriptions");
+    } finally {
+      setIsExpiringLoading(false);
     }
   };
 
   useEffect(() => {
-    getMembers();
-    getExpiredSubscriptions();
-    getExpiringSoon();
+    const initializeDashboard = async () => {
+      setIsInitialLoading(true);
+      try {
+        await Promise.all([
+          getMembers(),
+          getExpiredSubscriptions(),
+          getExpiringSoon()
+        ]);
+      } catch (error) {
+        console.error("Error initializing dashboard:", error);
+      } finally {
+        setIsInitialLoading(false);
+      }
+    };
+
+    initializeDashboard();
     setShowMemberModal(false);
     setMember(null);
     setShowAddMember(false);
@@ -104,6 +133,18 @@ export default function Dashboard() {
     getExpiredSubscriptions();
     getExpiringSoon();
   };
+
+  // Show initial loading screen
+  if (isInitialLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Spinner size="xl" />
+          <p className="mt-4 text-gray-600 font-medium">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -159,7 +200,11 @@ export default function Dashboard() {
           <div className="bg-[#e9e6f7] rounded-xl p-3 sm:p-4 shadow-sm h-[180px] sm:h-[220px] flex flex-col justify-between">
             <div className="rounded-lg">
               <h2 className="font-bold text-lg sm:text-xl mb-2 text-start font-montserrat text-gray-800">SUBSCRIPTION EXPIRED</h2>
-              {expiredSubscriptions.length === 0 ? (
+              {isExpiredLoading ? (
+                <div className="flex items-center justify-center h-24">
+                  <Spinner size="md" />
+                </div>
+              ) : expiredSubscriptions.length === 0 ? (
                 <div className="text-center py-4 text-gray-500 flex items-center justify-center h-full">
                   <div>
                     <p className="text-xs sm:text-sm">No expired subscriptions</p>
@@ -191,7 +236,11 @@ export default function Dashboard() {
           <div className="bg-[#f7f3e6] rounded-xl p-3 sm:p-4 shadow-sm h-[180px] sm:h-[220px] flex flex-col justify-between">
             <div className="rounded-lg">
               <h2 className="font-bold text-lg sm:text-xl mb-2 text-start font-montserrat text-gray-800">EXPIRING SOON</h2>
-              {expiringSoon.length === 0 ? (
+              {isExpiringLoading ? (
+                <div className="flex items-center justify-center h-24">
+                  <Spinner size="md" />
+                </div>
+              ) : expiringSoon.length === 0 ? (
                 <div className="text-center py-4 text-gray-500 flex items-center justify-center h-full">
                   <p className="text-xs sm:text-sm">No expiring soon subscriptions in the next 10 days</p>
                 </div>
@@ -251,7 +300,14 @@ export default function Dashboard() {
           </div>
 
           <div className="w-full overflow-x-auto">
-            {members.length === 0 ? (
+            {isMembersLoading ? (
+              <div className="py-8">
+                <div className="flex items-center justify-center mb-4">
+                  <Spinner size="lg" />
+                </div>
+                <p className="text-center text-gray-500">Loading members...</p>
+              </div>
+            ) : members.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <p className="text-lg font-medium">No members found</p>
                 <p className="text-sm">Add your first member to get started</p>
