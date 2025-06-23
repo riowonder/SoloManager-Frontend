@@ -30,12 +30,12 @@ export default function OTP() {
                 `${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-otp`,
                 {
                     email: email,
-                    otp: otp.join(""),
+                    inputOtp: otp.join(""),
                 },
                 { withCredentials: true }
             );
 
-            if (response.data.success) {
+            if (response.data.success) { 
                 toast.success("Email verified successfully!");
                 navigate("/login");
             }
