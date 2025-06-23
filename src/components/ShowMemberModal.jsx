@@ -133,10 +133,10 @@ export default function ShowMemberModal({ isOpen, onClose, member, onSave }) {
                   <span className="bg-gray-100 px-3 py-1 rounded-lg text-gray-800">📋 Personal Details</span>
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div className="flex items-baseline gap-2">
+                  {/* <div className="flex items-baseline gap-2">
                     <span className="font-semibold text-gray-700 text-sm sm:text-base min-w-fit">Phone Number:</span>
                     <span className="text-gray-900 text-sm sm:text-base">{details.phone_number || "N/A"}</span>
-                  </div>
+                  </div> */}
                   <div className="flex items-baseline gap-2">
                     <span className="font-semibold text-gray-700 text-sm sm:text-base min-w-fit">Gender:</span>
                     <span className="text-gray-900 text-sm sm:text-base">{details.gender || "N/A"}</span>
