@@ -7,11 +7,20 @@ import ChangeGymNameModal from './ChangeGymNameModal';
 import InviteManagerModal from './InviteManagerModal';
 
 const Sidebar = ({ isOpen, onClose }) => {
-    const { user, logout } = useUser();
+    const { user, logoutUser } = useUser();
     const [loading, setLoading] = useState(false);
     const [showGymNameModal, setShowGymNameModal] = useState(false);
     const [showInviteManagerModal, setShowInviteManagerModal] = useState(false);
     const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        setLoading(true);
+        await logoutUser();
+        setLoading(false);
+        toast.success("Logged out successfully");
+        navigate("/");
+    };
+
     return (
         <>
             {/* Backdrop */}
@@ -109,13 +118,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
                     {/* Logout Button */}
                     <button
-                        onClick={() => {
-                            setLoading(true);
-                            logout();
-                            setLoading(false);
-                            toast.success("Logged out successfully");
-                            navigate("/");
-                        }}
+                        onClick={handleLogout}
                         disabled={loading}
                         className="flex items-center gap-3 w-full p-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors cursor-pointer mb-3 sm:mb-0"
                     >

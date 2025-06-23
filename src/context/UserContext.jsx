@@ -87,6 +87,20 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    const logoutUser = async () => {
+        try {
+            await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`, {
+                method: 'POST',
+                credentials: 'include',
+            });
+            setUser(null);
+            localStorage.removeItem('user');
+        } catch (err) {
+            console.error('Error during logout:', err);
+            setError('Logout failed');
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen w-full flex items-center justify-center">
@@ -116,7 +130,7 @@ export const UserProvider = ({ children }) => {
     }
 
     return (
-        <UserContext.Provider value={{ user, login, logout, updateUser }}>
+        <UserContext.Provider value={{ user, login, logout, updateUser, error, logoutUser }}>
             {children}
         </UserContext.Provider>
     );
