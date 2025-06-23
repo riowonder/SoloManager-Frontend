@@ -1,7 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import ShowMemberModal from './ShowMemberModal';
 
 const ExpiringSoonModal = ({ isOpen, onClose, expiringSoon }) => {
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [showMemberModal, setShowMemberModal] = useState(false);
+
+  const handleViewMember = (member) => {
+    setSelectedMember(member);
+    setShowMemberModal(true);
+  };
+
+  const handleCloseMemberModal = () => {
+    setShowMemberModal(false);
+    setSelectedMember(null);
+  };
+
   if (!isOpen) return null;
 
   const getDaysLeftColor = (daysLeft) => {
@@ -58,6 +72,7 @@ const ExpiringSoonModal = ({ isOpen, onClose, expiringSoon }) => {
                         <th className="px-4 py-3 text-left font-semibold text-gray-700">Days Left</th>
                         <th className="px-4 py-3 text-left font-semibold text-gray-700">Phone</th>
                         <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
+                        <th className="px-4 py-3 text-left font-semibold text-gray-700">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -83,6 +98,14 @@ const ExpiringSoonModal = ({ isOpen, onClose, expiringSoon }) => {
                                member.days_left <= 2 ? 'Critical' :
                                member.days_left <= 5 ? 'Warning' : 'Notice'}
                             </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <button
+                              className="bg-cyan-100 text-black px-4 py-1 rounded-md font-semibold hover:bg-cyan-200 transition cursor-pointer text-sm"
+                              onClick={() => handleViewMember(member)}
+                            >
+                              View
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -123,6 +146,14 @@ const ExpiringSoonModal = ({ isOpen, onClose, expiringSoon }) => {
                         </span>
                       </div>
                     </div>
+                    <div className="mt-3 text-right">
+                      <button
+                        className="bg-cyan-100 text-black px-4 py-1 rounded-md font-semibold hover:bg-cyan-200 transition cursor-pointer text-sm"
+                        onClick={() => handleViewMember(member)}
+                      >
+                        View
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -140,6 +171,13 @@ const ExpiringSoonModal = ({ isOpen, onClose, expiringSoon }) => {
           </button>
         </div>
       </div>
+
+      {/* ShowMemberModal for selected member */}
+      <ShowMemberModal
+        isOpen={showMemberModal}
+        onClose={handleCloseMemberModal}
+        member={selectedMember}
+      />
     </div>
   );
 };
