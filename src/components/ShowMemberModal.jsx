@@ -20,13 +20,12 @@ export default function ShowMemberModal({ isOpen, onClose, member, onSave }) {
           setDetails(response.data.member);
         })
         .catch(() => {
-          setDetails(member); // fallback to prop
+          setDetails(member);
         })
         .finally(() => setLoading(false));
     } else if (member) {
       setDetails(member);
     }
-    // eslint-disable-next-line
   }, [isOpen, member && member._id]);
 
   if (!isOpen || !member) return null;
@@ -53,9 +52,9 @@ export default function ShowMemberModal({ isOpen, onClose, member, onSave }) {
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative max-h-[90vh] overflow-hidden">
-          {/* Scrollable container */}
-          <div className="overflow-y-auto custom-scrollbar px-6 py-6 sm:px-8 sm:py-8 max-h-[calc(90vh-64px)]">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative flex flex-col max-h-[90vh]">
+          {/* Scrollable content */}
+          <div className="overflow-y-auto custom-scrollbar px-6 py-6 sm:px-8 sm:py-8 flex-1">
             {/* Close Button */}
             <button
               className="absolute top-3 right-3 text-xl font-bold text-gray-400 hover:text-black transition cursor-pointer"
@@ -133,7 +132,7 @@ export default function ShowMemberModal({ isOpen, onClose, member, onSave }) {
             </div>
 
             {/* Personal Details */}
-            <div className="mb-6 border-b pb-4">
+            <div className="mb-4 border-b pb-4">
               <h3 className="font-semibold text-sm sm:text-base mb-3 text-gray-700 border-b border-gray-200 pb-2">
                 <span className="bg-gray-100 px-3 py-1 rounded-lg">📋 Personal Details</span>
               </h3>
@@ -166,8 +165,8 @@ export default function ShowMemberModal({ isOpen, onClose, member, onSave }) {
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 px-6 pb-6 justify-end">
+          {/* Action Buttons - Sticky Bottom */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 px-6 py-4 border-t bg-white">
             <button
               type="button"
               className="bg-blue-600 text-white px-4 sm:px-6 py-2 rounded font-semibold hover:bg-blue-700 transition text-sm sm:text-base"
@@ -182,13 +181,13 @@ export default function ShowMemberModal({ isOpen, onClose, member, onSave }) {
             >
               Edit
             </button>
-            <button
+            {/* <button
               type="button"
               className="bg-gray-100 text-black px-4 sm:px-6 py-2 rounded font-semibold hover:bg-gray-200 transition text-sm sm:text-base"
               onClick={onClose}
             >
               Cancel
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
@@ -207,7 +206,7 @@ export default function ShowMemberModal({ isOpen, onClose, member, onSave }) {
       {showEdit && (
         <EditMemberModal
           isOpen={showEdit}
-          onClose={() => setShowEdit(false)}
+          onClose={handleEditClose}
           member={details}
           onSave={handleEditSave}
         />
