@@ -7,7 +7,7 @@ const plans = [
   '3 Months',
   '6 Months',
   '1 Year',
-  'Custom' 
+  'Custom'
 ];
 
 export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
@@ -25,6 +25,7 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
     gender: '',
     address: ''
   });
+  const [memberImage, setMemberImage] = useState(null); // New state for image
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -38,26 +39,45 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
     }));
   };
 
+  const handleImageChange = (e) => {
+    setMemberImage(e.target.files[0]); // Get the first selected file
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
     try {
+      // Create FormData for member details and image
+      const memberFormData = new FormData();
+      memberFormData.append('roll_no', form.roll_no);
+      memberFormData.append('name', form.name);
+      memberFormData.append('phone_number', form.phone_number);
+      memberFormData.append('height', form.height);
+      memberFormData.append('weight', form.weight);
+      memberFormData.append('age', form.age);
+      memberFormData.append('gender', form.gender);
+      memberFormData.append('address', form.address);
+      if (memberImage) {
+        memberFormData.append('image', memberImage); // Append the image file
+      }
+
       // First, create the member
-      const memberResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/member/add`, {
-        roll_no: form.roll_no,
-        name: form.name,
-        phone_number: form.phone_number,
-        height: form.height,
-        weight: form.weight,
-        age: form.age,
-        gender: form.gender,
-        address: form.address
-      }, { withCredentials: true });
+      const memberResponse = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/member/add`,
+        memberFormData, // Send FormData
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'multipart/form-data', // Important for file uploads
+          },
+        }
+      );
 
       if (memberResponse.data.success) {
         const member = memberResponse.data.member;
-        
+
         // Then, add the subscription for the newly created member
         if (form.start_date && form.subscription_plan) {
           try {
@@ -81,7 +101,7 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
         } else {
           toast.success("Member added successfully!");
         }
-        
+
         onSuccess();
         onClose();
         // Reset form
@@ -99,6 +119,7 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
           gender: '',
           address: ''
         });
+        setMemberImage(null); // Reset image state
       }
     } catch (error) {
       setError(error.response?.data?.message || "Failed to add member");
@@ -153,7 +174,7 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
               placeholder="Enter Phone Number"
             />
           </div>
-          
+
           {/* New Personal Details Section */}
           <div className="border-t pt-4">
             <h3 className="font-semibold text-start block text-sm sm:text-base mb-3 text-gray-700">Personal Details</h3>
@@ -222,6 +243,17 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
                 className="w-full border rounded px-3 py-2 mt-1 text-sm sm:text-base"
                 placeholder="Enter address"
                 rows="3"
+              />
+            </div>
+            {/* Image Upload Input */}
+            <div className="mt-4">
+              <label className="font-semibold text-start block text-sm sm:text-base">Member Image:</label>
+              <input
+                type="file"
+                name="member_image"
+                accept="image/*" // Only allow image files
+                onChange={handleImageChange}
+                className="w-full border rounded px-3 py-2 mt-1 text-sm sm:text-base"
               />
             </div>
           </div>
@@ -301,4 +333,4 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }) {
       </div>
     </div>
   );
-} 
+}
